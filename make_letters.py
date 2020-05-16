@@ -3,6 +3,7 @@ import shutil
 from pathlib import Path
 import colorsys
 import jinja2
+import grip
 
 WIDTH = 480
 WX = 2
@@ -83,16 +84,22 @@ def split_letters():
 
 names={
     '00': 'manitoba',
-    '01': 'agathe',
-    '10': 'other',
-    '11': 'a'
+    '01': 'wii',
+    '10': 'michel_vaillant',
+    '11': 'hongrie'
 }
 
+if STATIC_SITE.exists():
+    shutil.rmtree(STATIC_SITE)
+STATIC_SITE.mkdir(parents=True)
+
 shutil.copy(TEMPLATES/'main.js', STATIC_SITE)
+grip.export(path=TEMPLATES/'index.md', out_filename=STATIC_SITE/'index.html')
+
 for i in range(WX):
     for j in range(HX):
         subfolder = f"{i}{j}"
-        index_template_string = (Path('templates')/'index.html.j2').read_text('utf8')
+        index_template_string = (Path('templates')/'part.html.j2').read_text('utf8')
         rendered = jinja2.Template(index_template_string).render(num_letters = len(TEXT), subfolder=subfolder)
         (STATIC_SITE / f"{names[subfolder]}.html").write_text(rendered)
 
