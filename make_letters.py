@@ -14,7 +14,6 @@ IMG_WIDTH = WIDTH*WX
 IMG_HEIGHT = HEIGHT*HX
 
 TEXT = "NEUF CENT VINGT SIX"
-TEXT = "N"
 
 FONT = 'font/texas_bold.otf'
 
