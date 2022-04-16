@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 import colorsys
 import jinja2
-import grip
+import qrcode
 
 WIDTH = 480
 WX = 2
@@ -13,7 +13,8 @@ HX = 2
 IMG_WIDTH = WIDTH*WX
 IMG_HEIGHT = HEIGHT*HX
 
-TEXT = " ANNEE NAISSANCE PAPA"
+TEXT = "NEUF CENT VINGT SIX"
+TEXT = "N"
 
 FONT = 'font/texas_bold.otf'
 
@@ -83,10 +84,10 @@ def split_letters():
                 cropped_img.save(cell_folder/f'{letter_ix}.png')
 
 names={
-    '00': 'manitoba',
-    '01': 'wii',
-    '10': 'michel_vaillant',
-    '11': 'hongrie'
+    '00': 'mo',
+    '01': 'np',
+    '10': 'ro',
+    '11': 'jet'
 }
 
 if STATIC_SITE.exists():
@@ -94,15 +95,25 @@ if STATIC_SITE.exists():
 STATIC_SITE.mkdir(parents=True)
 
 shutil.copy(TEMPLATES/'main.js', STATIC_SITE)
-grip.export(path=TEMPLATES/'index.md', out_filename=STATIC_SITE/'index.html')
 
 for i in range(WX):
     for j in range(HX):
-        subfolder = f"{i}{j}"
+        subfolder_name = f"{i}{j}"
+        subfolder = STATIC_SITE/subfolder_name
+        subfolder.mkdir()
         index_template_string = (Path('templates')/'part.html.j2').read_text('utf8')
-        rendered = jinja2.Template(index_template_string).render(num_letters = len(TEXT), subfolder=subfolder)
-        (STATIC_SITE / f"{names[subfolder]}.html").write_text(rendered)
+        rendered = jinja2.Template(index_template_string).render(num_letters = len(TEXT), subfolder=subfolder_name)
+
+        (STATIC_SITE/f"{names[subfolder_name]}.html").write_text(rendered)
 
 split_letters()
 
 
+SITE = "https://arpafaucon.github.io/escape_game"
+for name in names.values():
+    file = OUT_FOLDER / f"{name}.png"
+    qr = qrcode.QRCode(box_size=10)
+    qr.add_data(f"{SITE}/{name}")
+    qr.make()
+    img = qr.make_image()
+    img.save(str(file))
