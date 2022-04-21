@@ -14,6 +14,7 @@ IMG_WIDTH = WIDTH*WX
 IMG_HEIGHT = HEIGHT*HX
 
 TEXT = "NEUF CENT VINGT SIX"
+# TEXT = "XOD"
 
 FONT = 'font/texas_bold.otf'
 
@@ -94,6 +95,7 @@ if STATIC_SITE.exists():
 STATIC_SITE.mkdir(parents=True)
 
 shutil.copy(TEMPLATES/'main.js', STATIC_SITE)
+shutil.copy(TEMPLATES/'style.css', STATIC_SITE)
 
 for i in range(WX):
     for j in range(HX):
