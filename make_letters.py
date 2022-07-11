@@ -61,7 +61,7 @@ def split_letters():
         shutil.rmtree(OUT_FOLDER)
     OUT_FOLDER.mkdir()
     for letter_ix, letter in enumerate(TEXT):
-        img = Image.new('RGB', (IMG_WIDTH, IMG_HEIGHT), color=(73, 109, 137))
+        img = Image.new('RGB', (IMG_WIDTH, IMG_HEIGHT), color="#11273e")
 
         fnt = font_that_fits(letter)
         d = ImageDraw.Draw(img)
