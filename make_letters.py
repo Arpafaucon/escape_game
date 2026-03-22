@@ -3,6 +3,7 @@ import shutil
 from pathlib import Path
 import colorsys
 import jinja2
+import matplotlib
 import qrcode
 
 WIDTH = 480
@@ -13,8 +14,7 @@ HX = 2
 IMG_WIDTH = WIDTH*WX
 IMG_HEIGHT = HEIGHT*HX
 
-TEXT = "NEUF CENT VINGT SIX"
-# TEXT = "XOD"
+TEXT = "PLANCHE DE SURF"
 
 FONT = 'font/texas_bold.otf'
 
@@ -31,17 +31,17 @@ def fits(w, h) -> bool:
     return w < IMG_WIDTH and h < IMG_HEIGHT
 
 
-def font_that_fits(letter: str) -> ImageFont:
+def font_that_fits(letter: str) -> ImageFont.FreeTypeFont:
     fontsize = 600
     INCREMENT = 200
-    while (fits(*ImageFont.truetype(FONT, fontsize).getsize(letter))):
+    while (fits(*ImageFont.truetype(FONT, fontsize).getbbox(letter)[2:4])):
         fontsize += INCREMENT
     print("found size", fontsize-INCREMENT)
     return ImageFont.truetype(FONT, fontsize-INCREMENT)
 
 
-def offsets_to_center(fnt: ImageFont, letter: str):
-    w, h = fnt.getsize(letter)
+def offsets_to_center(fnt: ImageFont.FreeTypeFont, letter: str):
+    x, y, w, h = fnt.getbbox(letter)
     off_w = (IMG_WIDTH - w)//2
     off_h = (IMG_HEIGHT - h)//2 - 200
     return off_w, off_h
@@ -54,6 +54,10 @@ def letter_color(letter_ix: int):
     return r, g, b
 
 
+def letter_color_2(ratio: float):
+    col= matplotlib.colormaps["rainbow"](ratio)
+    col_int = [int(256*k) for k in col[:3]]
+    return tuple(col_int)
 
 
 def split_letters():
@@ -66,7 +70,8 @@ def split_letters():
         fnt = font_that_fits(letter)
         d = ImageDraw.Draw(img)
         offsets = offsets_to_center(fnt, letter)
-        color = letter_color(letter_ix)
+        # color = letter_color(letter_ix)
+        color = letter_color_2(letter_ix/(len(TEXT)-1))
         d.text(offsets,
             letter, font=fnt, fill=color,
             )
@@ -84,10 +89,10 @@ def split_letters():
                 cropped_img.save(cell_folder/f'{letter_ix}.png')
 
 names={
-    '00': 'mo',
-    '01': 'np',
-    '10': 'ro',
-    '11': 'jet'
+    '00': 'tl',
+    '01': 'tr',
+    '10': 'bl',
+    '11': 'br'
 }
 
 if STATIC_SITE.exists():
@@ -100,8 +105,8 @@ shutil.copy(TEMPLATES/'style.css', STATIC_SITE)
 for i in range(WX):
     for j in range(HX):
         subfolder_name = f"{i}{j}"
-        subfolder = STATIC_SITE/subfolder_name
-        subfolder.mkdir()
+        # subfolder = STATIC_SITE/subfolder_name
+        # subfolder.mkdir()
         index_template_string = (Path('templates')/'part.html.j2').read_text('utf8')
         rendered = jinja2.Template(index_template_string).render(num_letters = len(TEXT), subfolder=subfolder_name)
 
@@ -110,11 +115,11 @@ for i in range(WX):
 split_letters()
 
 
-SITE = "https://arpafaucon.github.io/escape_game"
+SITE = "https://www.greg-julie.com/game"
 for name in names.values():
     file = OUT_FOLDER / f"{name}.png"
     qr = qrcode.QRCode(box_size=10)
-    qr.add_data(f"{SITE}/{name}")
+    qr.add_data(f"{SITE}/{name}.html")
     qr.make()
     img = qr.make_image()
     img.save(str(file))

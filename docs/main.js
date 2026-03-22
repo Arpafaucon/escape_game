@@ -13,10 +13,19 @@ $(document).ready(function () {
         var image_path = './imgs/' + subfolder + '/' + img_id + '.png'
         $("#hint-img").attr("src", image_path)
         console.log("click", img_id, image_path);
+
+
+    }
+
+    function clickbutton()
+    {
+        next_img()
+        $("#red-button").remove();
+        console.log("button clicked")
     }
 
     $("#hint-img").click(next_img);
-    $("#button-next").click(next_img);
+    $("#button-next").click(clickbutton);
 
     next_img()
 })
